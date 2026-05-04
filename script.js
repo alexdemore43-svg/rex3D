@@ -25,6 +25,7 @@
     const detailPanels = document.querySelectorAll('.detail-panel');
     const detailClose = document.querySelector('.detail-close');
     let ticking = false;
+    let lastScrollY = window.scrollY;
 
     const finishLoading = () => {
         body.classList.add('loaded');
@@ -40,11 +41,21 @@
     });
 
     const updateHeader = () => {
-        if (window.scrollY > 20) {
-            header.classList.add('scroll-active');
-        } else {
+        const currentScrollY = window.scrollY;
+        const isAtTop = currentScrollY <= 20;
+        const isScrollingDown = currentScrollY > lastScrollY;
+
+        if (isAtTop) {
+            header.classList.remove('scroll-active', 'hide');
+        } else if (isScrollingDown) {
+            header.classList.add('hide');
             header.classList.remove('scroll-active');
+        } else {
+            header.classList.remove('hide');
+            header.classList.add('scroll-active');
         }
+
+        lastScrollY = currentScrollY;
     };
 
     const updateParallax = () => {
