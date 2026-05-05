@@ -338,6 +338,11 @@
         }
     });
 
+    // Update model material on effect change
+    if (selectEffect) {
+        selectEffect.addEventListener('change', updateModelMaterial);
+    }
+
     if (imagenesInput) {
         imagenesInput.addEventListener('change', validateImageSelection);
     }
@@ -386,4 +391,172 @@
         detailOverlay.setAttribute('aria-hidden', 'true');
         body.style.overflow = 'auto';
     };
+});
+
+// Three.js Scene Setup
+let scene, camera, renderer, model, material;
+
+const initThreeJS = () => {
+    const canvas = document.getElementById('threejs-canvas');
+    if (!canvas) return;
+
+    // Scene
+    scene = new THREE.Scene();
+
+    // Camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 5);
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x00f3ff, 1, 100);
+    pointLight1.position.set(10, 10, 10);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xffffff, 0.8, 100);
+    pointLight2.position.set(-10, -10, 10);
+    scene.add(pointLight2);
+
+    // Load GLTF Model
+    loadModel();
+
+    // Animation Loop
+    const animate = () => {
+        requestAnimationFrame(animate);
+        if (model) {
+            model.rotation.y += 0.005;
+        }
+        renderer.render(scene, camera);
+    };
+    animate();
+
+    // Handle Resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+};
+
+const loadModel = () => {
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+        'shader_ball.glb',
+        (gltf) => {
+            model = gltf.scene;
+            model.scale.set(1, 1, 1);
+            model.position.set(0, 0, 0);
+            scene.add(model);
+
+            // Traverse to find materials
+            model.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    material = child.material;
+                    updateMaterial('Filamento Directo'); // Default
+                }
+            });
+        },
+        (progress) => {
+            console.log('Loading progress:', progress);
+        },
+        (error) => {
+            console.error('Error loading model:', error);
+        }
+    );
+};
+
+const updateMaterial = (effect) => {
+    if (!material) return;
+
+    let color = 0xffffff;
+    let metalness = 0;
+    let roughness = 0.5;
+
+    switch (effect) {
+        case 'Filamento Directo':
+            color = 0xcccccc;
+            metalness = 0;
+            roughness = 0.8;
+            break;
+        case 'Acabado Plus':
+            color = 0xdddddd;
+            metalness = 0.2;
+            roughness = 0.6;
+            break;
+        case 'Mate':
+            color = 0x888888;
+            metalness = 0;
+            roughness = 1;
+            break;
+        case 'Satinado':
+            color = 0xaaaaaa;
+            metalness = 0.1;
+            roughness = 0.7;
+            break;
+        case 'Brillante':
+            color = 0xffffff;
+            metalness = 0.3;
+            roughness = 0.2;
+            break;
+        case 'Tornasol':
+            color = 0xffa500;
+            metalness = 0.5;
+            roughness = 0.3;
+            break;
+        case 'MC00':
+            color = 0x000000;
+            metalness = 0;
+            roughness = 1;
+            break;
+        case 'Hidrocromo':
+            color = 0x00ffff;
+            metalness = 0.8;
+            roughness = 0.1;
+            break;
+        case 'Metalizado Oro':
+            color = 0xffd700;
+            metalness = 1;
+            roughness = 0.2;
+            break;
+        case 'Metalizado Plata':
+            color = 0xc0c0c0;
+            metalness = 1;
+            roughness = 0.1;
+            break;
+        case 'Metalizado Bronce':
+            color = 0xcd7f32;
+            metalness = 0.9;
+            roughness = 0.3;
+            break;
+        default:
+            break;
+    }
+
+    material.color.setHex(color);
+    material.metalness = metalness;
+    material.roughness = roughness;
+    material.needsUpdate = true;
+};
+
+// Function to update material from quote selection
+const updateModelMaterial = () => {
+    const selectEffect = document.getElementById('efectoSelect');
+    if (selectEffect && selectEffect.value) {
+        updateMaterial(selectEffect.value);
+    }
+};
+
+// Initialize Three.js after DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    // Existing code...
+    initThreeJS();
 });
