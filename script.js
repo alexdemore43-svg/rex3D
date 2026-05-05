@@ -16,7 +16,9 @@
     const inputAlto = document.getElementById('input-alto');
     const inputCantidad = document.getElementById('input-cantidad');
     const estimateResult = document.getElementById('estimateResult');
-    const quoteError = document.getElementById('quoteError');
+    const quoteErrorPaso1 = document.getElementById('quoteError-paso-1');
+    const quoteErrorPaso2 = document.getElementById('quoteError-paso-2');
+    const quoteErrorPaso3 = document.getElementById('quoteError-paso-3');
     const especificaciones = document.getElementById('textarea-especificaciones');
     const imagenesInput = document.getElementById('input-imagenes');
     const detailOverlay = document.getElementById('detailOverlay');
@@ -109,7 +111,7 @@
         modal.setAttribute('aria-hidden', 'false');
         body.style.overflow = 'hidden';
         setStep(1);
-        if (quoteError) quoteError.textContent = '';
+        if (quoteErrorPaso1) quoteErrorPaso1.textContent = '';
     };
 
     const setStep = (step) => {
@@ -132,12 +134,12 @@
         const tipoBase = selectBase.value;
         const efecto = selectEffect.value;
         if (!tipoBase || !efecto) {
-            if (quoteError) {
-                quoteError.textContent = 'Selecciona una Base y un Efecto antes de continuar.';
+            if (quoteErrorPaso1) {
+                quoteErrorPaso1.textContent = 'Selecciona una Base y un Efecto antes de continuar.';
             }
             return false;
         }
-        if (quoteError) quoteError.textContent = '';
+        if (quoteErrorPaso1) quoteErrorPaso1.textContent = '';
         return true;
     };
 
@@ -148,17 +150,17 @@
         const alto = parseFloat(inputAlto.value) || 0;
         const cantidad = parseFloat(inputCantidad.value) || 0;
         if (!largo || !ancho || !alto || !cantidad) {
-            if (quoteError) {
-                quoteError.textContent = 'Ingresa valores válidos para Largo, Ancho, Alto y Cantidad.';
+            if (quoteErrorPaso2) {
+                quoteErrorPaso2.textContent = 'Ingresa valores válidos para Largo, Ancho, Alto y Cantidad.';
             }
             return false;
         }
-        if (quoteError) quoteError.textContent = '';
+        if (quoteErrorPaso2) quoteErrorPaso2.textContent = '';
         return true;
     };
 
     const validarPaso3 = () => {
-        if (quoteError) quoteError.textContent = '';
+        if (quoteErrorPaso3) quoteErrorPaso3.textContent = '';
         return true;
     };
 
@@ -226,43 +228,82 @@
     const btnSiguientePaso2 = document.getElementById('btn-siguiente-paso-2');
     const btnSiguientePaso3 = document.getElementById('btn-siguiente-paso-3');
 
+    // Event delegation en el formulario para mayor compatibilidad
+    const quoteForm = document.querySelector('.quote-form');
+    
+    if (quoteForm) {
+        quoteForm.addEventListener('click', (e) => {
+            const target = e.target;
+            
+            if (target.id === 'btn-siguiente-paso-1') {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Click en siguiente paso 1 (delegado)');
+                if (!validarPaso1()) {
+                    console.log('Validación paso 1 falló');
+                    return;
+                }
+                console.log('Avanzando a paso 2');
+                setStep(2);
+            } else if (target.id === 'btn-siguiente-paso-2') {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!validarPaso2()) return;
+                setStep(3);
+            } else if (target.id === 'btn-siguiente-paso-3') {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!validarPaso3()) return;
+                calcularPrecio();
+                setStep(4);
+            } else if (target.id === 'btn-anterior-paso-2') {
+                e.preventDefault();
+                e.stopPropagation();
+                setStep(1);
+            } else if (target.id === 'btn-anterior-paso-3') {
+                e.preventDefault();
+                e.stopPropagation();
+                setStep(2);
+            } else if (target.id === 'btn-anterior-paso-4') {
+                e.preventDefault();
+                e.stopPropagation();
+                setStep(3);
+            }
+        });
+    }
+
+    // Fallback: listeners directos si event delegation no funciona
     if (btnSiguientePaso1) {
-        btnSiguientePaso1.addEventListener('click', () => {
-            if (!validarPaso1()) return;
+        btnSiguientePaso1.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Click en siguiente paso 1 (directo)');
+            if (!validarPaso1()) {
+                console.log('Validación paso 1 falló');
+                return;
+            }
+            console.log('Avanzando a paso 2');
             setStep(2);
         });
     }
 
     if (btnSiguientePaso2) {
-        btnSiguientePaso2.addEventListener('click', () => {
+        btnSiguientePaso2.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (!validarPaso2()) return;
             setStep(3);
         });
     }
 
     if (btnSiguientePaso3) {
-        btnSiguientePaso3.addEventListener('click', () => {
+        btnSiguientePaso3.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (!validarPaso3()) return;
             calcularPrecio();
             setStep(4);
         });
-    }
-
-    // Listeners para Anterior (pasos 2-4)
-    const btnAnteriorPaso2 = document.getElementById('btn-anterior-paso-2');
-    const btnAnteriorPaso3 = document.getElementById('btn-anterior-paso-3');
-    const btnAnteriorPaso4 = document.getElementById('btn-anterior-paso-4');
-
-    if (btnAnteriorPaso2) {
-        btnAnteriorPaso2.addEventListener('click', () => setStep(1));
-    }
-
-    if (btnAnteriorPaso3) {
-        btnAnteriorPaso3.addEventListener('click', () => setStep(2));
-    }
-
-    if (btnAnteriorPaso4) {
-        btnAnteriorPaso4.addEventListener('click', () => setStep(3));
     }
 
     const validateImageSelection = () => {
@@ -272,11 +313,11 @@
             const dataTransfer = new DataTransfer();
             trimmedFiles.forEach((file) => dataTransfer.items.add(file));
             imagenesInput.files = dataTransfer.files;
-            if (quoteError) {
-                quoteError.textContent = 'Solo puedes seleccionar hasta 2 imágenes.';
+            if (quoteErrorPaso3) {
+                quoteErrorPaso3.textContent = 'Solo puedes seleccionar hasta 2 imágenes.';
             }
-        } else if (quoteError) {
-            quoteError.textContent = '';
+        } else if (quoteErrorPaso3) {
+            quoteErrorPaso3.textContent = '';
         }
     };
 
