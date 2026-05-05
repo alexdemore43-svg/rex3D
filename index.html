@@ -169,7 +169,8 @@
                 <p>Ingresa datos, obtén un estimado y confirma tu proyecto por WhatsApp.</p>
             </div>
             <form class="quote-form">
-                <div id="paso-1">
+                <!-- PASO 1: Materiales -->
+                <div id="paso-1" class="quote-step active">
                     <label>
                         Selección de Base
                         <select id="acabadoSelect" name="tipoBase">
@@ -195,10 +196,12 @@
                     </label>
                     <p class="quote-error" id="quoteError"></p>
                     <div class="step-footer">
-                        <button type="button" id="btn-siguiente" class="btn-secondary">Siguiente</button>
+                        <button type="button" id="btn-siguiente-paso-1" class="btn-secondary">Siguiente</button>
                     </div>
                 </div>
-                <div id="paso-2" style="display: none;">
+
+                <!-- PASO 2: Ingeniería -->
+                <div id="paso-2" class="quote-step" style="display: none;">
                     <div class="dimension-grid">
                         <label>
                             Largo (mm)
@@ -212,7 +215,20 @@
                             Alto (mm)
                             <input type="number" id="input-alto" name="alto" min="0" step="1" placeholder="Alto">
                         </label>
+                        <label>
+                            Cantidad de piezas
+                            <input type="number" id="input-cantidad" name="cantidad" min="1" step="1" placeholder="1" value="1">
+                        </label>
                     </div>
+                    <p class="quote-error" id="quoteError"></p>
+                    <div class="step-footer step-controls">
+                        <button type="button" id="btn-anterior-paso-2" class="btn-secondary prev-step">Anterior</button>
+                        <button type="button" id="btn-siguiente-paso-2" class="btn-secondary">Siguiente</button>
+                    </div>
+                </div>
+
+                <!-- PASO 3: Personalización -->
+                <div id="paso-3" class="quote-step" style="display: none;">
                     <label>
                         Especificaciones (opcional)
                         <textarea id="textarea-especificaciones" name="especificaciones" rows="4" placeholder="Describe detalles opcionales, colores, texturas o usos"></textarea>
@@ -221,9 +237,18 @@
                         Imágenes de referencia (opcional, máximo 2)
                         <input type="file" id="input-imagenes" name="imagenes" accept="image/png, image/jpeg, image/webp" multiple>
                     </label>
+                    <p class="quote-error" id="quoteError"></p>
+                    <div class="step-footer step-controls">
+                        <button type="button" id="btn-anterior-paso-3" class="btn-secondary prev-step">Anterior</button>
+                        <button type="button" id="btn-siguiente-paso-3" class="btn-secondary">Siguiente</button>
+                    </div>
+                </div>
+
+                <!-- PASO 4: Resultado -->
+                <div id="paso-4" class="quote-step" style="display: none;">
                     <div class="estimate-result" id="estimateResult"></div>
                     <div class="step-footer step-controls">
-                        <button type="button" class="btn-secondary prev-step">Anterior</button>
+                        <button type="button" id="btn-anterior-paso-4" class="btn-secondary prev-step">Anterior</button>
                         <button type="button" id="btn-confirmar" class="btn-secondary">Finalizar y Enviar a WhatsApp</button>
                     </div>
                 </div>
