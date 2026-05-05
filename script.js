@@ -183,7 +183,7 @@
         const precioUnitario = Math.round(volumen * factor);
         const total = precioUnitario * cantidad;
         if (estimateResult) {
-            estimateResult.innerHTML = `<p>El costo estimado de su proyecto sería de <strong>${formatCurrency(total)}</strong>. Este puede cambiar, para más información WhatsApp.</p>`;
+            estimateResult.innerHTML = `<p>El costo estimado de su proyecto sería de <strong>${formatCurrency(total)}</strong>. Este valor es una aproximación técnica. El costo final se confirmará vía WhatsApp tras revisar tus archivos.</p>`;
             estimateResult.style.display = 'block';
         }
         return total;
@@ -319,6 +319,16 @@
         } else if (quoteErrorPaso3) {
             quoteErrorPaso3.textContent = '';
         }
+
+        // Actualizar texto del botón
+        if (btnSubirImagenes) {
+            const fileCount = imagenesInput.files.length;
+            if (fileCount > 0) {
+                btnSubirImagenes.textContent = `${fileCount} imagen(es) seleccionada(s)`;
+            } else {
+                btnSubirImagenes.textContent = 'Seleccionar Imágenes';
+            }
+        }
     };
 
     [selectBase, selectEffect, inputLargo, inputAncho, inputAlto, inputCantidad, especificaciones, imagenesInput].forEach((field) => {
@@ -330,6 +340,14 @@
 
     if (imagenesInput) {
         imagenesInput.addEventListener('change', validateImageSelection);
+    }
+
+    // Botón personalizado para subir imágenes
+    const btnSubirImagenes = document.getElementById('btn-subir-imagenes');
+    if (btnSubirImagenes && imagenesInput) {
+        btnSubirImagenes.addEventListener('click', () => {
+            imagenesInput.click();
+        });
     }
 
     if (confirmButton) {

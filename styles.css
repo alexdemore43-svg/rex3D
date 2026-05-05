@@ -754,6 +754,11 @@ header.hide {
     gap: 1.5rem;
 }
 
+.quote-step {
+    text-align: center;
+    padding: 1rem 0;
+}
+
 .modal-step {
     display: none;
     gap: 1.5rem;
@@ -769,6 +774,7 @@ header.hide {
     margin-bottom: 20px;
     color: rgba(255,255,255,0.9);
     font-weight: 500;
+    text-align: center;
 }
 
 .quote-error {
@@ -839,19 +845,52 @@ header.hide {
     font-weight: 700;
 }
 
-.file-upload input {
-    display: none;
+.btn-upload {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border-radius: 50px;
+    border: 2px solid var(--accent);
+    background: #000000;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.btn-upload:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(0, 243, 255, 0.8);
 }
 
 .estimate-result {
     display: none;
-    margin-top: 1rem;
-    padding: 1rem 1.1rem;
-    border-radius: 18px;
-    background: rgba(0,243,255,0.08);
-    border: 1px solid rgba(0,243,255,0.18);
+    margin-top: 2rem;
+    padding: 2rem;
+    text-align: center;
     color: #e6f7ff;
     line-height: 1.6;
+    background: transparent;
+    border: none;
+}
+
+.estimate-result strong {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.estimate-result p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .btn-secondary,
@@ -869,11 +908,30 @@ header.hide {
     transition: transform 0.25s ease, background 0.25s ease;
 }
 
-.btn-secondary:hover,
-.whatsapp-action:hover {
+.btn-whatsapp {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border-radius: 50px;
+    border: 2px solid #00ff00;
+    background: #00ff00;
+    color: #000000;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
+.btn-whatsapp:hover {
     transform: translateY(-2px);
-    background: rgba(0,243,255,0.22);
-    border-color: rgba(0,243,255,0.35);
+    background: #00cc00;
+    border-color: #00cc00;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
 }
 
 .step-footer {
@@ -888,7 +946,7 @@ header.hide {
 .step-controls {
     display: flex;
     gap: 1rem;
-    justify-content: flex-end;
+    justify-content: center;
     flex-wrap: wrap;
 }
 

@@ -235,7 +235,8 @@
                     </label>
                     <label>
                         Imágenes de referencia (opcional, máximo 2)
-                        <input type="file" id="input-imagenes" name="imagenes" accept="image/png, image/jpeg, image/webp" multiple>
+                        <input type="file" id="input-imagenes" name="imagenes" accept="image/png, image/jpeg, image/webp" multiple style="display: none;">
+                        <button type="button" id="btn-subir-imagenes" class="btn-upload">Seleccionar Imágenes</button>
                     </label>
                     <p class="quote-error" id="quoteError-paso-3"></p>
                     <div class="step-footer step-controls">
@@ -249,7 +250,7 @@
                     <div class="estimate-result" id="estimateResult"></div>
                     <div class="step-footer step-controls">
                         <button type="button" id="btn-anterior-paso-4" class="btn-secondary prev-step">Anterior</button>
-                        <button type="button" id="btn-confirmar" class="btn-secondary">Finalizar y Enviar a WhatsApp</button>
+                        <button type="button" id="btn-confirmar" class="btn-whatsapp">Hablar con un Especialista por WhatsApp</button>
                     </div>
                 </div>
             </form>
