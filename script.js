@@ -20,6 +20,8 @@
     const inputAlto = document.getElementById('input-alto');
     const estimateResult = document.getElementById('estimateResult');
     const quoteError = document.getElementById('quoteError');
+    const especificaciones = document.getElementById('textarea-especificaciones');
+    const imagenesInput = document.getElementById('input-imagenes');
     const detailOverlay = document.getElementById('detailOverlay');
     const detailButtons = document.querySelectorAll('.detail-card');
     const detailPanels = document.querySelectorAll('.detail-panel');
@@ -154,7 +156,7 @@
         const factor = getMaterialFactor(material);
         const total = Math.round(volumen * factor);
         if (estimateResult) {
-            estimateResult.innerHTML = `<p>Costo estimado de producción: <strong>${formatCurrency(total)}</strong> MXN</p>`;
+            estimateResult.innerHTML = `<p>El costo estimado de su proyecto sería de <strong>${formatCurrency(total)}</strong>. Este valor puede variar. Para más información, contáctanos por WhatsApp.</p>`;
             estimateResult.style.display = 'block';
         }
         return total;
@@ -181,7 +183,8 @@
             }
             return;
         }
-        const mensaje = `Hola REX 3D, me interesa una pieza ${tipoBase} con acabado ${efecto} de ${largo}x${ancho}x${alto} mm. El estimado es ${formatCurrency(precio)}. ¿Podemos agendarlo?`;
+        const detalles = especificaciones && especificaciones.value.trim() ? ` Especificaciones: ${especificaciones.value.trim()}.` : '';
+        const mensaje = `Hola REX 3D, me interesa una pieza ${tipoBase} con acabado ${efecto} de ${largo}x${ancho}x${alto} mm. El estimado es ${formatCurrency(precio)}.${detalles} ¿Podemos agendarlo?`;
         window.open(`https://wa.me/tu_numero?text=${encodeURIComponent(mensaje)}`, '_blank');
     };
 
@@ -214,11 +217,31 @@
         });
     });
 
-    [selectBase, selectEffect, inputLargo, inputAncho, inputAlto].forEach((field) => {
+    const validateImageSelection = () => {
+        if (!imagenesInput) return;
+        if (imagenesInput.files.length > 2) {
+            const trimmedFiles = Array.from(imagenesInput.files).slice(0, 2);
+            const dataTransfer = new DataTransfer();
+            trimmedFiles.forEach((file) => dataTransfer.items.add(file));
+            imagenesInput.files = dataTransfer.files;
+            if (quoteError) {
+                quoteError.textContent = 'Solo puedes seleccionar hasta 2 imágenes.';
+            }
+        } else if (quoteError) {
+            quoteError.textContent = '';
+        }
+    };
+
+    [selectBase, selectEffect, inputLargo, inputAncho, inputAlto, especificaciones, imagenesInput].forEach((field) => {
         if (field) {
-            field.addEventListener('input', calcularPrecio);
+            const eventType = field === imagenesInput ? 'change' : 'input';
+            field.addEventListener(eventType, calcularPrecio);
         }
     });
+
+    if (imagenesInput) {
+        imagenesInput.addEventListener('change', validateImageSelection);
+    }
 
     if (confirmButton) {
         confirmButton.addEventListener('click', finalizarWhatsApp);
