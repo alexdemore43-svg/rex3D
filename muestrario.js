@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Canvas and wrapper
     const canvas = document.getElementById('muestrario-canvas');
-    const wrapper = document.querySelector('#muestrario-left .muestrario-canvas-wrapper') || document.querySelector('.muestrario-canvas-wrapper');
-    if (!canvas || !wrapper) {
+    const contenedor = canvas?.parentElement || document.querySelector('#muestrario-left .contenedor-tarjeta-esfera') || document.querySelector('.contenedor-tarjeta-esfera');
+    if (!canvas || !contenedor) {
         console.warn('muestrario: canvas or wrapper not found');
         return;
     }
@@ -38,13 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.background = new THREE.Color(0x05070b);
 
     const getSize = () => {
-        const rect = wrapper.getBoundingClientRect();
+        const rect = contenedor.getBoundingClientRect();
         return { width: Math.max(320, Math.floor(rect.width)), height: Math.max(320, Math.floor(rect.height)) };
     };
 
     const size = getSize();
     const camera = new THREE.PerspectiveCamera(42, size.width / size.height, 0.1, 100);
-    camera.position.set(0, 1, 5);
+    camera.position.set(0, 0, 4);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -174,7 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
         loader.load('shader_ball.glb', (gltf) => {
             model = gltf.scene;
             model.rotation.y = 0;
-            model.scale.set(1.05, 1.05, 1.05);
+            model.scale.set(0.5, 0.5, 0.5);
+            model.traverse((child) => {
+                if (child.isMesh && child.geometry && typeof child.geometry.center === 'function') {
+                    child.geometry.center();
+                }
+            });
             scene.add(model);
             applyMaterialToModel('primer-gris');
         }, undefined, (err) => {
