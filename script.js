@@ -18,7 +18,7 @@
     const btnPrevPaso4 = document.getElementById('btn-anterior-paso-4');
     const btnUploadImages = document.getElementById('btn-subir-imagenes');
     const inputImagenes = document.getElementById('input-imagenes');
-    const muestrarioCanvas = document.getElementById('muestrarioCanvas');
+    const muestrarioCanvas = document.getElementById('muestrario-canvas') || document.getElementById('muestrarioCanvas');
     const materialButtons = document.querySelectorAll('.finish-button');
     const paso1 = document.getElementById('paso-1');
     const paso2 = document.getElementById('paso-2');
@@ -133,7 +133,8 @@
     let muestrarioModel = null;
 
     const resizeMuestrario = () => {
-        const wrapper = document.querySelector('#muestrario-acabados .muestrario-canvas-wrapper');
+        // try to find the most specific wrapper present on the page
+        const wrapper = document.querySelector('#muestrario-left .muestrario-canvas-wrapper') || document.querySelector('#muestrario-acabados .muestrario-canvas-wrapper') || document.querySelector('.muestrario-canvas-wrapper');
         if (!muestrarioCanvas || !muestrarioRenderer || !muestrarioCamera || !wrapper) return;
         const rect = wrapper.getBoundingClientRect();
         const width = Math.max(Math.floor(rect.width), 320);
@@ -141,7 +142,6 @@
         muestrarioRenderer.setSize(width, height, false);
         muestrarioCamera.aspect = width / height;
         muestrarioCamera.updateProjectionMatrix();
-        // ensure canvas style matches renderer size for proper display
         muestrarioCanvas.style.width = width + 'px';
         muestrarioCanvas.style.height = height + 'px';
     };
@@ -151,8 +151,8 @@
         const materialPresets = {
             'primer-gris': { color: 0x8f9398, metalness: 0.0, roughness: 0.85, emissive: 0x020202 },
             'primer-negro': { color: 0x121212, metalness: 0.0, roughness: 0.85, emissive: 0x040404 },
-            'hidrocromo-verde': { color: 0x00ff99, metalness: 1.0, roughness: 0.05, emissive: 0x002222 },
-            'hidrocromo-plata': { color: 0xd6d8de, metalness: 1.0, roughness: 0.05, emissive: 0x111111 },
+            'hidrocromo-verde': { color: 0x00ff99, metalness: 1.0, roughness: 0.03, emissive: 0x002222 },
+            'hidrocromo-plata': { color: 0xd6d8de, metalness: 1.0, roughness: 0.03, emissive: 0x111111 },
         };
         const preset = materialPresets[materialKey] || materialPresets['primer-gris'];
         const material = buildMuestrarioMaterial(preset);
@@ -166,7 +166,7 @@
     };
 
     const initMuestrario = () => {
-        const wrapper = document.querySelector('#muestrario-acabados .muestrario-canvas-wrapper');
+        const wrapper = document.querySelector('#muestrario-left .muestrario-canvas-wrapper') || document.querySelector('#muestrario-acabados .muestrario-canvas-wrapper') || document.querySelector('.muestrario-canvas-wrapper');
         if (!muestrarioCanvas || typeof THREE === 'undefined' || !wrapper) return;
         const rect = wrapper.getBoundingClientRect();
         const width = Math.max(Math.floor(rect.width), 320);
@@ -447,7 +447,9 @@
         });
     }
 
-    initMuestrario();
+    if (muestrarioCanvas) {
+        initMuestrario();
+    }
 
     const openDetailPanel = (panelName) => {
         if (!detailOverlay) return;

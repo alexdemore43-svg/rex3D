@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REX 3D STUDIO | Acabados</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-inner">
+            <a href="index.html" class="brand">
+                <img src="logo.jpeg" alt="REX 3D STUDIO" class="logo-image">
+                <span>REX 3D STUDIO</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html#proyectos">Proyectos</a>
+                <a href="acabados.html">Acabados</a>
+                <a href="index.html#contacto">Contacto</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="acabados-main">
+        <div class="acabados-grid">
+            <div id="muestrario-left" class="muestrario-left">
+                <div class="muestrario-canvas-wrapper" style="height:100%;">
+                    <canvas id="muestrario-canvas"></canvas>
+                </div>
+            </div>
+            <aside class="muestrario-right">
+                <p class="section-eyebrow">Muestrario Dinámico</p>
+                <h2>Visualiza acabados premium</h2>
+                <p class="detail-copy">Cambia acabados en tiempo real y observa reflexiones premium con hidrocromo.</p>
+                <div class="finish-buttons">
+                    <button type="button" class="finish-button" data-material="primer-gris">Primer Gris</button>
+                    <button type="button" class="finish-button" data-material="primer-negro">Primer Negro</button>
+                    <button type="button" class="finish-button" data-material="hidrocromo-verde">Hidrocromo Verde</button>
+                    <button type="button" class="finish-button" data-material="hidrocromo-plata">Hidrocromo Plata</button>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
