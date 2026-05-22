@@ -52,12 +52,23 @@
         setTimeout(finishLoading, 1200);
     });
 
+    let lastScrollY = window.scrollY || 0;
     const updateHeader = () => {
-        if (window.scrollY > 20) {
+        if (!header) return;
+        const currentY = window.scrollY || 0;
+        // add compact/contrast state when scrolled a bit
+        if (currentY > 20) {
             header.classList.add('scroll-active');
         } else {
             header.classList.remove('scroll-active');
         }
+        // hide on scroll down, show on scroll up (smooth)
+        if (currentY > lastScrollY && currentY > 50) {
+            header.classList.add('hide');
+        } else {
+            header.classList.remove('hide');
+        }
+        lastScrollY = currentY;
     };
 
     const updateParallax = () => {
@@ -122,12 +133,17 @@
     let muestrarioModel = null;
 
     const resizeMuestrario = () => {
-        if (!muestrarioCanvas || !muestrarioRenderer || !muestrarioCamera) return;
-        const width = Math.max(muestrarioCanvas.clientWidth, 420);
-        const height = Math.max(muestrarioCanvas.clientHeight, 420);
+        const wrapper = document.querySelector('#muestrario-acabados .muestrario-canvas-wrapper');
+        if (!muestrarioCanvas || !muestrarioRenderer || !muestrarioCamera || !wrapper) return;
+        const rect = wrapper.getBoundingClientRect();
+        const width = Math.max(Math.floor(rect.width), 320);
+        const height = Math.max(Math.floor(rect.height), 320);
         muestrarioRenderer.setSize(width, height, false);
         muestrarioCamera.aspect = width / height;
         muestrarioCamera.updateProjectionMatrix();
+        // ensure canvas style matches renderer size for proper display
+        muestrarioCanvas.style.width = width + 'px';
+        muestrarioCanvas.style.height = height + 'px';
     };
 
     const applyMuestrarioMaterial = (materialKey) => {
@@ -150,9 +166,11 @@
     };
 
     const initMuestrario = () => {
-        if (!muestrarioCanvas || typeof THREE === 'undefined') return;
-        const width = Math.max(muestrarioCanvas.clientWidth, 420);
-        const height = Math.max(muestrarioCanvas.clientHeight, 420);
+        const wrapper = document.querySelector('#muestrario-acabados .muestrario-canvas-wrapper');
+        if (!muestrarioCanvas || typeof THREE === 'undefined' || !wrapper) return;
+        const rect = wrapper.getBoundingClientRect();
+        const width = Math.max(Math.floor(rect.width), 320);
+        const height = Math.max(Math.floor(rect.height), 320);
         muestrarioScene = new THREE.Scene();
         muestrarioScene.background = new THREE.Color(0x05070b);
 
@@ -160,8 +178,10 @@
         muestrarioCamera.position.set(0, 0, 1.8);
 
         muestrarioRenderer = new THREE.WebGLRenderer({ canvas: muestrarioCanvas, antialias: true, alpha: true });
-        muestrarioRenderer.setPixelRatio(window.devicePixelRatio);
+        muestrarioRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         muestrarioRenderer.setSize(width, height, false);
+        muestrarioCanvas.style.width = width + 'px';
+        muestrarioCanvas.style.height = height + 'px';
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.18);
         const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
