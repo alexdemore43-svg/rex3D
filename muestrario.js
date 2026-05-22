@@ -161,12 +161,28 @@
         });
     };
 
+    const frameObject = (object) => {
+        const box = new THREE.Box3().setFromObject(object);
+        const sizeBox = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        object.position.sub(center);
+
+        const maxSize = Math.max(sizeBox.x, sizeBox.y, sizeBox.z);
+        const fitHeightDistance = maxSize / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)));
+        const fitWidthDistance = fitHeightDistance / camera.aspect;
+        const distance = Math.max(fitHeightDistance, fitWidthDistance) * 1.35;
+        camera.position.set(0, 0, distance);
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+    };
+
     const addFallback = () => {
         const geo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
         const mat = new THREE.MeshStandardMaterial({ color: 0x00ffff, metalness: 0.1, roughness: 0.5 });
         const box = new THREE.Mesh(geo, mat);
         scene.add(box);
         model = box;
+        frameObject(box);
         applyMaterialToModel('primer-gris');
     };
 
@@ -175,13 +191,14 @@
         loader.load('shader_ball.glb', (gltf) => {
             model = gltf.scene;
             model.rotation.y = 0;
-            model.scale.set(0.5, 0.5, 0.5);
+            model.scale.set(0.65, 0.65, 0.65);
             model.traverse((child) => {
                 if (child.isMesh && child.geometry && typeof child.geometry.center === 'function') {
                     child.geometry.center();
                 }
             });
             scene.add(model);
+            frameObject(model);
             applyMaterialToModel('primer-gris');
         }, undefined, (err) => {
             console.warn('muestrario: GLTF load failed, using fallback box', err);
