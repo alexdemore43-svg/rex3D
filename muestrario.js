@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const body = document.body;
+    body.classList.add('loaded', 'loading-done');
+    body.style.opacity = '1';
+
     // Header scroll behavior (independent)
     const header = document.getElementById('main-header');
     let lastY = window.scrollY || 0;
