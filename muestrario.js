@@ -44,23 +44,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const size = getSize();
     const camera = new THREE.PerspectiveCamera(42, size.width / size.height, 0.1, 100);
-    camera.position.set(0, 0, 1.8);
+    camera.position.set(0, 1, 5);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(size.width, size.height, false);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.physicallyCorrectLights = true;
     canvas.style.width = size.width + 'px';
     canvas.style.height = size.height + 'px';
 
-    // Lights
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    const setEnvironment = (texture) => {
+        scene.environment = texture;
+        // keep background dark for premium contrast
+        scene.background = new THREE.Color(0x05070b);
+    };
+
+    const createFallbackEnvironment = () => {
+        const width = 128;
+        const height = 64;
+        const sizeData = width * height;
+        const data = new Uint8Array(sizeData * 3);
+        for (let y = 0; y < height; y++) {
+            const t = y / (height - 1);
+            const r = Math.round(20 + 120 * (1 - t));
+            const g = Math.round(24 + 96 * (1 - t));
+            const b = Math.round(40 + 120 * t);
+            for (let x = 0; x < width; x++) {
+                const index = (x + y * width) * 3;
+                data[index] = r;
+                data[index + 1] = g;
+                data[index + 2] = b;
+            }
+        }
+        const texture = new THREE.DataTexture(data, width, height, THREE.RGBFormat);
+        texture.needsUpdate = true;
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        const envMap = pmremGenerator.fromEquirectangular(texture);
+        texture.dispose();
+        setEnvironment(envMap.texture);
+        return envMap;
+    };
+
+    const loadHDR = (urls, index = 0) => {
+        return new Promise((resolve) => {
+            if (index >= urls.length) {
+                resolve(null);
+                return;
+            }
+            const loader = new THREE.RGBELoader();
+            loader.setDataType(THREE.UnsignedByteType);
+            loader.load(urls[index], (hdrEquirect) => {
+                const envMap = pmremGenerator.fromEquirectangular(hdrEquirect);
+                hdrEquirect.dispose();
+                setEnvironment(envMap.texture);
+                resolve(envMap);
+            }, undefined, () => {
+                resolve(loadHDR(urls, index + 1));
+            });
+        });
+    };
+
+    loadHDR(['studio.hdr', 'environment.hdr', 'env.hdr']).then((envMap) => {
+        if (!envMap) {
+            createFallbackEnvironment();
+        }
+    });
+
+    if (THREE.RectAreaLightUniformsLib) {
+        THREE.RectAreaLightUniformsLib.init();
+    }
+
+    const rectLight = new THREE.RectAreaLight(0xffffff, 3.5, 3.5, 2.2);
+    rectLight.position.set(0, 1.5, 2.5);
+    rectLight.lookAt(new THREE.Vector3(0, 0, 0));
+    scene.add(rectLight);
+
+    const cyanLight = new THREE.PointLight(0x00ffff, 1.5, 10);
+    cyanLight.position.set(-1.5, 1.2, 2);
+    scene.add(cyanLight);
+
     const ambient = new THREE.AmbientLight(0xffffff, 0.18);
-    const key = new THREE.DirectionalLight(0xffffff, 1.0);
-    key.position.set(2, 2, 2);
-    const fill = new THREE.DirectionalLight(0x92f8ff, 0.45);
-    fill.position.set(-2, 1.2, 1);
-    const rim = new THREE.DirectionalLight(0x68f7ff, 0.35);
-    rim.position.set(-1.5, 2, -1.5);
-    scene.add(ambient, key, fill, rim);
+    scene.add(ambient);
 
     let model = null;
 
