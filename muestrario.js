@@ -43,7 +43,7 @@
     };
 
     const size = getSize();
-    const camera = new THREE.PerspectiveCamera(42, size.width / size.height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(42, size.width / size.height, 0.01, 1000);
     camera.position.set(0, 0, 4);
     camera.lookAt(0, 0, 0);
 
@@ -170,14 +170,14 @@
         const maxSize = Math.max(sizeBox.x, sizeBox.y, sizeBox.z);
         const fitHeightDistance = maxSize / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)));
         const fitWidthDistance = fitHeightDistance / camera.aspect;
-        const distance = Math.max(fitHeightDistance, fitWidthDistance) * 1.35;
+        const distance = Math.max(fitHeightDistance, fitWidthDistance) * 1.8;
         camera.position.set(0, 0, distance);
         camera.lookAt(0, 0, 0);
         camera.updateProjectionMatrix();
     };
 
     const addFallback = () => {
-        const geo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+        const geo = new THREE.BoxGeometry(0.7, 0.7, 0.7);
         const mat = new THREE.MeshStandardMaterial({ color: 0x00ffff, metalness: 0.1, roughness: 0.5 });
         const box = new THREE.Mesh(geo, mat);
         scene.add(box);
@@ -191,9 +191,9 @@
         loader.load('shader_ball.glb', (gltf) => {
             model = gltf.scene;
             model.rotation.y = 0;
-            model.scale.set(0.65, 0.65, 0.65);
+            model.scale.set(0.45, 0.45, 0.45);
             model.traverse((child) => {
-                if (child.isMesh && child.geometry && typeof child.geometry.center === 'function') {
+                if (child.isMesh && child.geometry) {
                     child.geometry.center();
                 }
             });
