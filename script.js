@@ -52,6 +52,141 @@
         setTimeout(finishLoading, 1200);
     });
 
+        // --- Control Panel (Acordeón) & Material update helpers ---
+        function setupControlPanel() {
+            const accordion = document.getElementById('customAccordion');
+            if (!accordion) return;
+
+            accordion.addEventListener('click', (e) => {
+                const header = e.target.closest('.accordion-header');
+                if (!header) return;
+                const item = header.parentElement;
+                // close others (acordeón limpio)
+                accordion.querySelectorAll('.accordion-item').forEach(i => {
+                    if (i !== item) i.classList.remove('open');
+                });
+                item.classList.toggle('open');
+            });
+
+            // Color palette
+            document.querySelectorAll('.color-swatch').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const hex = btn.dataset.hex;
+                    const picker = document.getElementById('colorPicker');
+                    const hexInput = document.getElementById('colorHex');
+                    if (picker) picker.value = hex;
+                    if (hexInput) hexInput.value = hex;
+                    updateMeshMaterial('color', hex);
+                });
+            });
+
+            const colorPicker = document.getElementById('colorPicker');
+            const colorHex = document.getElementById('colorHex');
+            if (colorPicker) {
+                colorPicker.addEventListener('input', () => {
+                    if (colorHex) colorHex.value = colorPicker.value;
+                    updateMeshMaterial('color', colorPicker.value);
+                });
+            }
+            if (colorHex) {
+                colorHex.addEventListener('change', () => {
+                    let val = colorHex.value.trim();
+                    if (!val) return;
+                    if (!val.startsWith('#')) val = '#'+val;
+                    if (colorPicker) colorPicker.value = val;
+                    colorHex.value = val;
+                    updateMeshMaterial('color', val);
+                });
+            }
+
+            // Primers
+            document.querySelectorAll('input[name="primer"]').forEach(r => {
+                r.addEventListener('change', () => updateMeshMaterial('primer', r.value));
+            });
+
+            // Finishes
+            document.querySelectorAll('input[name="finish"]').forEach(r => {
+                r.addEventListener('change', () => updateMeshMaterial('finish', r.value));
+            });
+
+            // Effects (checkboxes)
+            const effectCheckboxes = Array.from(document.querySelectorAll('input[name="effect"]'));
+            effectCheckboxes.forEach(cb => cb.addEventListener('change', () => {
+                const selected = effectCheckboxes.filter(c=>c.checked).map(c=>c.value);
+                updateMeshMaterial('effects', selected);
+            }));
+        }
+
+        const finishPresets = {
+            'Mate': { roughness: 0.85, metalness: 0.05 },
+            'Brillo': { roughness: 0.08, metalness: 0.12 },
+            'MC00': { roughness: 0.18, metalness: 0.8 },
+            'Hidrocromo': { roughness: 0.02, metalness: 0.95, envMapIntensity: 1.2 },
+            'Cromo Técnico': { roughness: 0.0, metalness: 1.0, envMapIntensity: 1.6 }
+        };
+
+        function updateMeshMaterial(type, value) {
+            // Placeholder centralizada para conectar con Three.js
+            console.log('updateMeshMaterial ->', type, value);
+
+            // Try to find a mesh on the page where to apply material changes.
+            // The project's sphere mesh should be attached to window.rexMesh by the Three.js initialization code when ready.
+            const mesh = window.rexMesh || window.sphereMesh || null;
+
+            if (type === 'finish') {
+                const preset = finishPresets[value];
+                if (preset && mesh && mesh.material) {
+                    const mat = mesh.material;
+                    if (typeof preset.roughness !== 'undefined') mat.roughness = preset.roughness;
+                    if (typeof preset.metalness !== 'undefined') mat.metalness = preset.metalness;
+                    if (typeof preset.envMapIntensity !== 'undefined') mat.envMapIntensity = preset.envMapIntensity;
+                    if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                }
+            }
+
+            if (type === 'color') {
+                if (mesh && mesh.material && mesh.material.color) {
+                    try { mesh.material.color.set(value); } catch (err) { console.warn('Could not set color', err); }
+                    if (mesh.material.needsUpdate !== undefined) mesh.material.needsUpdate = true;
+                }
+            }
+
+            if (type === 'primer') {
+                // Simple mapping: change base tint / roughness to hint the primer effect
+                if (mesh && mesh.material) {
+                    const mat = mesh.material;
+                    if (value === 'Gris Base') { if (mat.color) mat.color.set('#9e9e9e'); mat.roughness = Math.max(mat.roughness || 0, 0.6); }
+                    if (value === 'Blanco Detalle') { if (mat.color) mat.color.set('#ffffff'); mat.roughness = 0.45; }
+                    if (value === 'Negro Profundo') { if (mat.color) mat.color.set('#0a0a0a'); mat.roughness = 0.3; mat.metalness = 0.12; }
+                    if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                }
+            }
+
+            if (type === 'effects') {
+                // value is expected to be an array of effect keys
+                const effects = Array.isArray(value) ? value : [];
+                if (mesh && mesh.material) {
+                    const mat = mesh.material;
+                    // Example: Luminiscente -> set emissive color and intensity
+                    if (effects.includes('Luminiscente')) {
+                        if (!mat.emissive) mat.emissive = new THREE.Color(0x000000);
+                        mat.emissive.set('#00ffcc');
+                        mat.emissiveIntensity = 0.8;
+                    } else {
+                        if (mat.emissive) mat.emissive.set('#000000');
+                        mat.emissiveIntensity = 0;
+                    }
+                    // Metalizado -> boost metalness
+                    if (effects.includes('Metalizado')) mat.metalness = Math.max(mat.metalness || 0, 0.9);
+                    if (effects.includes('Texturizado')) mat.roughness = Math.max(mat.roughness || 0.2, 0.7);
+                    if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                }
+            }
+        }
+
+        // Inicializa los listeners del panel tras DOMContentLoaded
+        try { setupControlPanel(); } catch (err) { console.warn('Control panel init failed', err); }
+
     let lastScrollY = window.scrollY || 0;
     const updateHeader = () => {
         if (!header) return;
