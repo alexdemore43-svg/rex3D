@@ -119,9 +119,11 @@
 
         const finishPresets = {
             'Mate': { roughness: 0.85, metalness: 0.05 },
+            'Satinado': { roughness: 0.45, metalness: 0.08 },
             'Brillo': { roughness: 0.08, metalness: 0.12 },
             'MC00': { roughness: 0.18, metalness: 0.8 },
             'Hidrocromo': { roughness: 0.02, metalness: 0.95, envMapIntensity: 1.2 },
+            'Tornasol': { roughness: 0.12, metalness: 0.6, iridescence: true },
             'Cromo Técnico': { roughness: 0.0, metalness: 1.0, envMapIntensity: 1.6 }
         };
 
