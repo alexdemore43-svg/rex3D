@@ -29,6 +29,67 @@
             <div id="muestrario-left" class="muestrario-left">
                 <div class="contenedor-tarjeta-esfera">
                     <canvas id="muestrario-canvas"></canvas>
+
+                    <!-- Control Panel (overlay dentro de la zona de la esfera) -->
+                    <aside class="control-panel" id="controlPanel" aria-label="Panel de personalización de la esfera">
+                        <div class="control-panel-inner">
+                            <h3 class="panel-title">Personaliza la esfera</h3>
+                            <div class="accordion" id="customAccordion">
+                                <div class="accordion-item" data-key="color">
+                                    <button class="accordion-header" type="button">Color</button>
+                                    <div class="accordion-body">
+                                        <div class="color-palette" role="list">
+                                            <button class="color-swatch" data-hex="#ffffff" style="background:#ffffff" aria-label="#ffffff"></button>
+                                            <button class="color-swatch" data-hex="#000000" style="background:#000000" aria-label="#000000"></button>
+                                            <button class="color-swatch" data-hex="#ff6b6b" style="background:#ff6b6b" aria-label="#ff6b6b"></button>
+                                            <button class="color-swatch" data-hex="#00f3ff" style="background:#00f3ff" aria-label="#00f3ff"></button>
+                                            <button class="color-swatch" data-hex="#ffd166" style="background:#ffd166" aria-label="#ffd166"></button>
+                                        </div>
+                                        <label class="color-input">
+                                            Seleccionar color
+                                            <input type="color" id="colorPicker" value="#00f3ff">
+                                        </label>
+                                        <label class="color-hex">
+                                            Código HEX
+                                            <input type="text" id="colorHex" placeholder="#RRGGBB" maxlength="7">
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item" data-key="primers">
+                                    <button class="accordion-header" type="button">Primers (Imprimaciones)</button>
+                                    <div class="accordion-body">
+                                        <label><input type="radio" name="primer" value="Gris Base"> Gris Base</label>
+                                        <label><input type="radio" name="primer" value="Blanco Detalle"> Blanco Detalle</label>
+                                        <label><input type="radio" name="primer" value="Negro Profundo"> Negro Profundo</label>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item" data-key="finishes">
+                                    <button class="accordion-header" type="button">Acabados Especiales</button>
+                                    <div class="accordion-body">
+                                        <label><input type="radio" name="finish" value="Mate"> Mate</label>
+                                        <label><input type="radio" name="finish" value="Satinado"> Satinado</label>
+                                        <label><input type="radio" name="finish" value="Brillo"> Brillo</label>
+                                        <label><input type="radio" name="finish" value="MC00"> MC00</label>
+                                        <label><input type="radio" name="finish" value="Hidrocromo"> Hidrocromo</label>
+                                        <label><input type="radio" name="finish" value="Tornasol"> Tornasol</label>
+                                        <label><input type="radio" name="finish" value="Cromo Técnico"> Cromo Técnico</label>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item" data-key="effects">
+                                    <button class="accordion-header" type="button">Efectos / Extras</button>
+                                    <div class="accordion-body">
+                                        <label><input type="checkbox" name="effect" value="Texturizado"> Efecto Texturizado</label>
+                                        <label><input type="checkbox" name="effect" value="Metalizado"> Metalizado</label>
+                                        <label><input type="checkbox" name="effect" value="Luminiscente"> Luminiscente / Neon</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
                 </div>
             </div>
             <aside class="muestrario-right">
@@ -49,6 +110,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lights/RectAreaLightUniformsLib.js"></script>
+    <script src="script.js"></script>
     <script src="muestrario.js"></script>
 </body>
 </html>

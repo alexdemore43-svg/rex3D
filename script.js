@@ -131,57 +131,90 @@
             // Placeholder centralizada para conectar con Three.js
             console.log('updateMeshMaterial ->', type, value);
 
-            // Try to find a mesh on the page where to apply material changes.
-            // The project's sphere mesh should be attached to window.rexMesh by the Three.js initialization code when ready.
-            const mesh = window.rexMesh || window.sphereMesh || null;
+            const rexAvailable = typeof window.rexApplyMaterialProps === 'function' || typeof window.rexSetColor === 'function';
+            const model = window.rexModel || null;
 
             if (type === 'finish') {
                 const preset = finishPresets[value];
-                if (preset && mesh && mesh.material) {
-                    const mat = mesh.material;
-                    if (typeof preset.roughness !== 'undefined') mat.roughness = preset.roughness;
-                    if (typeof preset.metalness !== 'undefined') mat.metalness = preset.metalness;
-                    if (typeof preset.envMapIntensity !== 'undefined') mat.envMapIntensity = preset.envMapIntensity;
-                    if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                if (rexAvailable && preset) {
+                    // apply preset props to all meshes
+                    const props = {};
+                    if (typeof preset.roughness !== 'undefined') props.roughness = preset.roughness;
+                    if (typeof preset.metalness !== 'undefined') props.metalness = preset.metalness;
+                    if (typeof preset.envMapIntensity !== 'undefined') props.envMapIntensity = preset.envMapIntensity;
+                    window.rexApplyMaterialProps(props);
+                } else {
+                    // fallback: try to target a single mesh
+                    const mesh = window.rexMesh || window.sphereMesh || null;
+                    if (preset && mesh && mesh.material) {
+                        const mat = mesh.material;
+                        if (typeof preset.roughness !== 'undefined') mat.roughness = preset.roughness;
+                        if (typeof preset.metalness !== 'undefined') mat.metalness = preset.metalness;
+                        if (typeof preset.envMapIntensity !== 'undefined') mat.envMapIntensity = preset.envMapIntensity;
+                        if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                    }
                 }
             }
 
             if (type === 'color') {
-                if (mesh && mesh.material && mesh.material.color) {
-                    try { mesh.material.color.set(value); } catch (err) { console.warn('Could not set color', err); }
-                    if (mesh.material.needsUpdate !== undefined) mesh.material.needsUpdate = true;
+                if (rexAvailable && typeof window.rexSetColor === 'function') {
+                    window.rexSetColor(value);
+                } else {
+                    const mesh = window.rexMesh || window.sphereMesh || null;
+                    if (mesh && mesh.material && mesh.material.color) {
+                        try { mesh.material.color.set(value); } catch (err) { console.warn('Could not set color', err); }
+                        if (mesh.material.needsUpdate !== undefined) mesh.material.needsUpdate = true;
+                    }
                 }
             }
 
             if (type === 'primer') {
-                // Simple mapping: change base tint / roughness to hint the primer effect
-                if (mesh && mesh.material) {
-                    const mat = mesh.material;
-                    if (value === 'Gris Base') { if (mat.color) mat.color.set('#9e9e9e'); mat.roughness = Math.max(mat.roughness || 0, 0.6); }
-                    if (value === 'Blanco Detalle') { if (mat.color) mat.color.set('#ffffff'); mat.roughness = 0.45; }
-                    if (value === 'Negro Profundo') { if (mat.color) mat.color.set('#0a0a0a'); mat.roughness = 0.3; mat.metalness = 0.12; }
-                    if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                // map primers to props or presets
+                if (rexAvailable && model) {
+                    if (value === 'Gris Base') window.rexApplyMaterialProps({ roughness: Math.max(0.6, 0.6), metalness: 0 });
+                    if (value === 'Blanco Detalle') window.rexApplyMaterialProps({ roughness: 0.45 });
+                    if (value === 'Negro Profundo') window.rexApplyMaterialProps({ roughness: 0.3, metalness: 0.12, color: 0x0a0a0a });
+                    if (typeof window.rexSetColor === 'function') {
+                        if (value === 'Gris Base') window.rexSetColor('#9e9e9e');
+                        if (value === 'Blanco Detalle') window.rexSetColor('#ffffff');
+                        if (value === 'Negro Profundo') window.rexSetColor('#0a0a0a');
+                    }
+                } else {
+                    const mesh = window.rexMesh || window.sphereMesh || null;
+                    if (mesh && mesh.material) {
+                        const mat = mesh.material;
+                        if (value === 'Gris Base') { if (mat.color) mat.color.set('#9e9e9e'); mat.roughness = Math.max(mat.roughness || 0, 0.6); }
+                        if (value === 'Blanco Detalle') { if (mat.color) mat.color.set('#ffffff'); mat.roughness = 0.45; }
+                        if (value === 'Negro Profundo') { if (mat.color) mat.color.set('#0a0a0a'); mat.roughness = 0.3; mat.metalness = 0.12; }
+                        if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+                    }
                 }
             }
 
             if (type === 'effects') {
-                // value is expected to be an array of effect keys
                 const effects = Array.isArray(value) ? value : [];
-                if (mesh && mesh.material) {
-                    const mat = mesh.material;
-                    // Example: Luminiscente -> set emissive color and intensity
-                    if (effects.includes('Luminiscente')) {
-                        if (!mat.emissive) mat.emissive = new THREE.Color(0x000000);
-                        mat.emissive.set('#00ffcc');
-                        mat.emissiveIntensity = 0.8;
-                    } else {
-                        if (mat.emissive) mat.emissive.set('#000000');
-                        mat.emissiveIntensity = 0;
+                if (rexAvailable && model) {
+                    // handle luminiscente
+                    if (effects.includes('Luminiscente')) window.rexApplyMaterialProps({ emissive: new THREE.Color('#00ffcc'), emissiveIntensity: 0.8 });
+                    else window.rexApplyMaterialProps({ emissive: new THREE.Color('#000000'), emissiveIntensity: 0 });
+                    if (effects.includes('Metalizado')) window.rexApplyMaterialProps({ metalness: 0.9 });
+                    if (effects.includes('Texturizado')) window.rexApplyMaterialProps({ roughness: 0.7 });
+                } else {
+                    const mesh = window.rexMesh || window.sphereMesh || null;
+                    if (mesh && mesh.material) {
+                        const mat = mesh.material;
+                        if (effects.includes('Luminiscente')) {
+                            if (!mat.emissive) mat.emissive = new THREE.Color(0x000000);
+                            mat.emissive.set('#00ffcc');
+                            mat.emissiveIntensity = 0.8;
+                        } else {
+                            if (mat.emissive) mat.emissive.set('#000000');
+                            mat.emissiveIntensity = 0;
+                        }
+                        if (effects.includes('Metalizado')) mat.metalness = Math.max(mat.metalness || 0, 0.9);
+                        if (effects.includes('Texturizado')) mat.roughness = Math.max(mat.roughness || 0.2, 0.7);
+                        if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
                     }
-                    // Metalizado -> boost metalness
-                    if (effects.includes('Metalizado')) mat.metalness = Math.max(mat.metalness || 0, 0.9);
-                    if (effects.includes('Texturizado')) mat.roughness = Math.max(mat.roughness || 0.2, 0.7);
-                    if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
                 }
             }
         }

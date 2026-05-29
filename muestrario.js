@@ -184,6 +184,28 @@
         model = box;
         frameObject(box);
         applyMaterialToModel('primer-gris');
+        // expose fallback model and helpers as well
+        window.rexModel = model;
+        window.rexApplyMaterialProps = (props = {}) => {
+            if (!window.rexModel) return;
+            window.rexModel.traverse(node => {
+                if (node.isMesh && node.material) {
+                    Object.keys(props).forEach(k => {
+                        try { node.material[k] = props[k]; } catch (e) {}
+                    });
+                    node.material.needsUpdate = true;
+                }
+            });
+        };
+        window.rexSetColor = (hex) => {
+            if (!window.rexModel) return;
+            window.rexModel.traverse(node => {
+                if (node.isMesh && node.material && node.material.color) {
+                    try { node.material.color.set(hex); } catch (e) {}
+                    node.material.needsUpdate = true;
+                }
+            });
+        };
     };
 
     try {
@@ -200,6 +222,28 @@
             scene.add(model);
             frameObject(model);
             applyMaterialToModel('primer-gris');
+            // Expose model and helpers for external control (control panel)
+            window.rexModel = model;
+            window.rexApplyMaterialProps = (props = {}) => {
+                if (!window.rexModel) return;
+                window.rexModel.traverse(node => {
+                    if (node.isMesh && node.material) {
+                        Object.keys(props).forEach(k => {
+                            try { node.material[k] = props[k]; } catch (e) {}
+                        });
+                        node.material.needsUpdate = true;
+                    }
+                });
+            };
+            window.rexSetColor = (hex) => {
+                if (!window.rexModel) return;
+                window.rexModel.traverse(node => {
+                    if (node.isMesh && node.material && node.material.color) {
+                        try { node.material.color.set(hex); } catch (e) {}
+                        node.material.needsUpdate = true;
+                    }
+                });
+            };
         }, undefined, (err) => {
             console.warn('muestrario: GLTF load failed, using fallback box', err);
             addFallback();
